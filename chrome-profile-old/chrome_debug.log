@@ -1,0 +1,26 @@
+[3392:33028:0401/231759.301:INFO:components\enterprise\browser\controller\chrome_browser_cloud_management_controller.cc:225] No machine level policy manager exists.
+[30484:10676:0401/231759.370:ERROR:ui\gl\direct_composition_support.cc:612] AMD VideoProcessorGetOutputExtension failed: Unspecified error (0x80004005)
+[30484:10676:0401/231759.372:VERBOSE1:components\viz\service\main\viz_main_impl.cc:86] VizNullHypothesis is disabled (not a warning)
+[31640:19788:0401/231759.433:INFO:third_party\webrtc\rtc_base\cpu_info.cc:75] Available number of cores: 12
+[37556:7204:0401/231759.433:INFO:third_party\webrtc\rtc_base\cpu_info.cc:75] Available number of cores: 12
+[24028:30324:0401/231759.897:INFO:third_party\webrtc\rtc_base\cpu_info.cc:75] Available number of cores: 12
+[35564:16232:0401/231800.092:INFO:third_party\webrtc\rtc_base\cpu_info.cc:75] Available number of cores: 12
+[25268:1496:0401/231800.100:INFO:third_party\webrtc\rtc_base\cpu_info.cc:75] Available number of cores: 12
+[3392:33028:0401/231800.474:INFO:CONSOLE:185] "Event handler of 'x-storagemutated-1' event must be added on the initial evaluation of worker script.", source: https://static.whatsapp.net/rsrc.php/v4/yL/r/943CBlcdCTb.js (185)
+[27716:3472:0401/231800.487:INFO:third_party\webrtc\rtc_base\cpu_info.cc:75] Available number of cores: 12
+[3392:33028:0401/231803.655:INFO:CONSOLE:79] "ErrorUtils caught an error:
+
+Converting to a string will drop content data. Hash="undefined" Translation="{user_name} left" Content="Context not logged." (type=object,Object)
+
+Subsequent non-fatal errors won't be logged; see https://fburl.com/debugjs. [object Object]", source: https://static.whatsapp.net/rsrc.php/v4/ya/r/R1pEz0OuWy4.js (79)
+[3392:852:0401/231808.298:ERROR:google_apis\gcm\engine\registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[3392:852:0401/231836.016:ERROR:google_apis\gcm\engine\registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[3776:32080:0401/231845.103:INFO:third_party\webrtc\rtc_base\cpu_info.cc:75] Available number of cores: 12
+[33884:13148:0401/231845.246:INFO:third_party\webrtc\rtc_base\cpu_info.cc:75] Available number of cores: 12
+[31684:4240:0401/231850.425:INFO:third_party\webrtc\rtc_base\cpu_info.cc:75] Available number of cores: 12
+[3392:33028:0401/231851.282:INFO:CONSOLE:0] "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing.", source: https://www.google.com/recaptcha/enterprise/anchor?ar=1&k=6LdLLIMbAAAAAIl-KLj9p1ePhM-4LCCDbjtJLqRO&co=aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbTo0NDM.&hl=en&v=79clEdOi5xQbrrpL2L8kGmK3&size=normal&s=wb0utzi1LLmtKURHf6SE7Ls0TiJ6WEJw4GAhxGljw0HGz-ekzDJKz6OjISjTMNKe8Xkv-RAVBLpS-E1UuAtfkk1wEc00voWmm8Ah-0WKx9iEQzzHYuBi-GlY3UhZ_CbtaAT_VWLWHynviRQ5qFZNiz8SXnAnWgqYUOJ-hNpXLyxwKJLsKIgQtgekFxyZsVp0gkJjEtko0l-qlOWEIvX0GJAKZTqr__7T7aZb8SFiXUUa_DWfOkqn679DP3DQ8KUKdtTlT1jRvq-Op2QKD13RtwjJgbo-QJY&anchor-ms=20000&execute-ms=30000&cb=udk9lc2qj69a (0)
+[3392:33028:0401/231851.467:INFO:CONSOLE:4] "Uncaught ReferenceError: solveSimpleChallenge is not defined", source: https://www.google.com/sorry/index?continue=https://www.google.com/search%3Fq%3Dclaude%26oq%3Dclaude%26gs_lcrp%3DEgZjaHJvbWUyBggAEEUYOdIBCDMzNTVqMGo3qAIAsAIA%26sourceid%3Dchrome%26ie%3DUTF-8%26sei%3DgVrNaeGWL6WZseMP677h-Qk&q=EgQxzI1tGIG1tc4GIjBH2JLV4O3ViCCAKlq7EQT_WQJHxChyJk1RCfZoaYEqT_2Ow2Yil3aIzlzbIFCHPlAyAVJaAUM (4)
+[3392:33028:0401/231851.742:INFO:CONSOLE:0] "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing.", source: https://www.google.com/recaptcha/enterprise/bframe?hl=en&v=79clEdOi5xQbrrpL2L8kGmK3&k=6LdLLIMbAAAAAIl-KLj9p1ePhM-4LCCDbjtJLqRO&bft=0dAFcWeA5LHG9v6PEO_fT8Lda-AJnStdRveTHhcVt-6H3Bi50HjiEr_9JLrQ1xAS2z2AIl5d7p1ezwNusxaLx6vfDxvSNw-L_2KQ (0)
+[3392:852:0401/231923.248:ERROR:google_apis\gcm\engine\registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[13740:10444:0401/231959.581:VERBOSE1:components\viz\service\main\viz_main_impl.cc:86] VizNullHypothesis is disabled (not a warning)
+[3392:852:0401/232107.282:ERROR:google_apis\gcm\engine\registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
