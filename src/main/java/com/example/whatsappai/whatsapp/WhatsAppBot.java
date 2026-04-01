@@ -35,7 +35,8 @@ public class WhatsAppBot {
     private final AppConfig config;
     private final OllamaClient ollamaClient;
     private final MessageMemory memory;
-    private final Map<String, String> lastHandledMessageByChat = new ConcurrentHashMap<>();
+    private final Map<String, String> lastHandledFingerprintByChat = new ConcurrentHashMap<>();
+    private final Map<String, Boolean> introSentByChat = new ConcurrentHashMap<>();
     private final AtomicLong loopCount = new AtomicLong();
     private boolean domDebugPrinted;
 
@@ -103,12 +104,12 @@ public class WhatsAppBot {
             }
         }
 
-        if (unreadChats.isEmpty()) {
+        ChatEntry chatEntry = !unreadChats.isEmpty() ? unreadChats.get(0) : currentOpenChatEntry(driver);
+        if (chatEntry == null) {
             return;
         }
 
-        ChatEntry chatEntry = unreadChats.get(0);
-        System.out.printf("Trying unread chat: %s%n", chatEntry.name());
+        System.out.printf("Trying chat: %s%n", chatEntry.name());
 
         try {
             WebElement body = driver.findElement(By.tagName("body"));
@@ -131,30 +132,43 @@ public class WhatsAppBot {
             return;
         }
 
-        String incomingMessage = latestIncomingMessage(driver);
-        System.out.printf("Latest incoming message: %s%n", incomingMessage);
+        MessageSnapshot incomingMessage = latestIncomingMessage(driver);
+        System.out.printf("Latest incoming message: %s%n", incomingMessage.text());
 
-        if (incomingMessage == null || incomingMessage.isBlank()) {
+        if (incomingMessage.text().isBlank()) {
             System.out.println("No incoming message text found in opened chat.");
             return;
         }
 
-        String lastHandled = lastHandledMessageByChat.get(chatName);
-        if (incomingMessage.equals(lastHandled)) {
+        String lastHandled = lastHandledFingerprintByChat.get(chatName);
+        if (incomingMessage.fingerprint().equals(lastHandled)) {
             return;
         }
 
-        System.out.printf("New message from %s: %s%n", chatName, incomingMessage);
-        memory.rememberUserMessage(chatName, incomingMessage);
+        System.out.printf("New message from %s: %s%n", chatName, incomingMessage.text());
+        memory.rememberUserMessage(chatName, incomingMessage.text());
 
         System.out.println("Requesting reply from Ollama...");
-        String reply = ollamaClient.generateReply(chatName, incomingMessage, memory.historyFor(chatName));
+        String reply = ollamaClient.generateReply(chatName, incomingMessage.text(), memory.historyFor(chatName));
         System.out.printf("Generated reply: %s%n", reply);
+
+        if (!Boolean.TRUE.equals(introSentByChat.get(chatName))) {
+            String intro = "Right now you are talking to Deva's assistant.";
+            sendReply(driver, intro);
+            memory.rememberAssistantMessage(chatName, intro);
+            introSentByChat.put(chatName, true);
+        }
+
         sendReply(driver, reply);
 
         memory.rememberAssistantMessage(chatName, reply);
-        lastHandledMessageByChat.put(chatName, incomingMessage);
+        lastHandledFingerprintByChat.put(chatName, incomingMessage.fingerprint());
         System.out.printf("Reply sent to %s: %s%n", chatName, reply);
+    }
+
+    private ChatEntry currentOpenChatEntry(WebDriver driver) {
+        String chatName = currentChatTitle(driver);
+        return chatName.isBlank() ? null : new ChatEntry(chatName, false);
     }
 
     private List<ChatEntry> readVisibleChats(WebDriver driver) {
@@ -311,7 +325,7 @@ public class WhatsAppBot {
         return value.replace("\"", "\\\"");
     }
 
-    private String latestIncomingMessage(WebDriver driver) {
+    private MessageSnapshot latestIncomingMessage(WebDriver driver) {
         try {
             Thread.sleep(800);
         } catch (InterruptedException ignored) {
@@ -323,44 +337,68 @@ public class WhatsAppBot {
         for (int index = messages.size() - 1; index >= 0; index--) {
             String text = messages.get(index).getText();
             if (text != null && !text.isBlank()) {
-                return text.trim();
+                String normalized = text.trim();
+                return new MessageSnapshot(normalized, normalized + "|selenium|" + messages.size());
             }
         }
 
         Object jsMessage = ((JavascriptExecutor) driver).executeScript("""
                 const main = document.querySelector('#main');
-                if (!main) return null;
+                if (!main) return { text: '', fingerprint: '' };
 
-                const candidates = [...main.querySelectorAll('span.selectable-text, div.copyable-text, span[dir="ltr"], span[dir="auto"]')];
-                const cleaned = candidates
-                  .map(el => (el.innerText || el.textContent || '').trim())
-                  .filter(text =>
-                    text &&
-                    !/^\\d{1,2}:\\d{2}(?:\\s?[ap]m)?$/i.test(text) &&
-                    !/^today$/i.test(text) &&
-                    !/^yesterday$/i.test(text) &&
-                    !/unread messages?/i.test(text) &&
-                    text.length > 1
-                  );
+                const incomingContainers = [
+                  ...main.querySelectorAll('div.message-in, div[class*="message-in"], div[aria-label*="message-in"]')
+                ];
 
-                return cleaned.length ? cleaned[cleaned.length - 1] : null;
+                const extracted = incomingContainers
+                  .map((container, index) => {
+                    const textNodes = [...container.querySelectorAll('span.selectable-text, div.copyable-text, span[dir="ltr"], span[dir="auto"]')];
+                    const values = textNodes
+                      .map(el => (el.innerText || el.textContent || '').trim())
+                      .filter(text =>
+                        text &&
+                        !/^\\d{1,2}:\\d{2}(?:\\s?[ap]m)?$/i.test(text) &&
+                        !/^today$/i.test(text) &&
+                        !/^yesterday$/i.test(text) &&
+                        !/unread messages?/i.test(text) &&
+                        text.length > 1
+                      );
+                    if (!values.length) return null;
+                    const text = values[values.length - 1];
+                    const fullText = (container.innerText || '').trim();
+                    return { text, fingerprint: fullText || (text + '|js-in|' + index) };
+                  })
+                  .filter(Boolean);
+
+                if (!extracted.length) return { text: '', fingerprint: '' };
+                return extracted[extracted.length - 1];
                 """);
-        String fallbackMessage = stringValue(jsMessage).trim();
-        if (!fallbackMessage.isBlank()) {
+        MessageSnapshot fallbackSnapshot = messageSnapshot(jsMessage);
+        if (!fallbackSnapshot.text().isBlank()) {
             System.out.println("JS fallback incoming message found.");
-            return fallbackMessage;
+            return fallbackSnapshot;
         }
 
         Object debug = ((JavascriptExecutor) driver).executeScript("""
                 const main = document.querySelector('#main');
                 if (!main) return 'NO #main';
-                const msgDivs = main.querySelectorAll('div[class*="message"], span.selectable-text, div.copyable-text');
+                const msgDivs = main.querySelectorAll('div[class*="message"], div.message-in, div.message-out, span.selectable-text, div.copyable-text');
                 return 'message-like elements found: ' + msgDivs.length +
                        ' | main innerHTML length: ' + main.innerHTML.length;
                 """);
         System.out.println("Message debug: " + debug);
 
-        return null;
+        return new MessageSnapshot("", "");
+    }
+
+    private MessageSnapshot messageSnapshot(Object value) {
+        if (value instanceof Map<?, ?> map) {
+            return new MessageSnapshot(
+                    stringValue(map.get("text")).trim(),
+                    stringValue(map.get("fingerprint")).trim()
+            );
+        }
+        return new MessageSnapshot("", "");
     }
 
     private void sendReply(WebDriver driver, String reply) {
@@ -373,6 +411,9 @@ public class WhatsAppBot {
 
     private Path profileDirectory() {
         return Path.of(config.chromeProfileDir());
+    }
+
+    private record MessageSnapshot(String text, String fingerprint) {
     }
 
     private record ChatEntry(String name, boolean unread) {

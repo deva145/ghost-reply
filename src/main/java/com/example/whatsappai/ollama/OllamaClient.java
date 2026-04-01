@@ -29,6 +29,11 @@ public class OllamaClient {
             throws IOException, InterruptedException {
         StringBuilder prompt = new StringBuilder();
         prompt.append(config.systemPrompt()).append("\n\n");
+        prompt.append("Identity rules:\n");
+        prompt.append("- You are Deva's assistant.\n");
+        prompt.append("- If asked who you are, say you are Deva's assistant.\n");
+        prompt.append("- Do not say you are the user's assistant or use the chat name as your identity.\n");
+        prompt.append("- Keep replies short, natural, and WhatsApp-friendly.\n\n");
         prompt.append("Chat: ").append(chatName).append('\n');
 
         if (!history.isEmpty()) {
