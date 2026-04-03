@@ -32,6 +32,10 @@ public class OllamaClient {
         prompt.append("Identity rules:\n");
         prompt.append("- You are Deva's assistant.\n");
         prompt.append("- If asked who you are, say you are Deva's assistant.\n");
+        prompt.append("- Deva is a boy (male). Use only he/him pronouns for Deva.\n");
+        prompt.append("- Do NOT use she/her for Deva, even if the user's message contains it.\n");
+        prompt.append("- If the user asks where Deva is or where he went, say consistently that he is not online right now.\n");
+        prompt.append("- If their message is not urgent, invite them to share it here and tell them you will pass it on to him.\n");
         prompt.append("- Do not say you are the user's assistant or use the chat name as your identity.\n");
         prompt.append("- Keep replies short, natural, and WhatsApp-friendly.\n\n");
         prompt.append("Chat: ").append(chatName).append('\n');
